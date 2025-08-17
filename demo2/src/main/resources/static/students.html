@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { color: #333; }
+        input { margin: 5px; padding: 5px; }
+        button { padding: 6px 10px; margin: 5px; cursor: pointer; }
+        table { border-collapse: collapse; width: 50%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #f2f2f2; }
+    </style>
+</head>
+<body>
+<h2>Student Management</h2>
+
+<div>
+    <input type="text" id="name" placeholder="Enter Name">
+    <input type="number" id="age" placeholder="Enter Age">
+    <button onclick="addStudent()">Add Student</button>
+</div>
+
+<h3>All Students</h3>
+<button onclick="getStudents()">Load Students</button>
+<table id="studentsTable">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Age</th>
+    </tr>
+</table>
+
+<script>
+    async function addStudent() {
+      const name = document.getElementById("name").value;
+      const age = document.getElementById("age").value;
+
+      if (!name || !age) {
+        alert("Please enter both name and age.");
+        return;
+      }
+
+      const response = await fetch("/students/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name, age: parseInt(age) })
+      });
+
+      if (response.ok) {
+        alert("Student added successfully!");
+        getStudents();
+      } else {
+        alert("Error adding student");
+      }
+    }
+
+    async function getStudents() {
+      const response = await fetch("/students/all");
+      const data = await response.json();
+
+      const table = document.getElementById("studentsTable");
+      table.innerHTML = `
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Age</th>
+        </tr>
+      `;
+
+      data.forEach(student => {
+        const row = `<tr>
+            <td>${student.id}</td>
+            <td>${student.name}</td>
+            <td>${student.age}</td>
+          </tr>`;
+        table.innerHTML += row;
+      });
+    }
+</script>
+</body>
+</html>

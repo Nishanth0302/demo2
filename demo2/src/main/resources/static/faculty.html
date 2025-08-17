@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Faculty App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { color: #333; }
+        input { margin: 5px; padding: 5px; }
+        button { padding: 6px 10px; margin: 5px; cursor: pointer; }
+        table { border-collapse: collapse; width: 70%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #f2f2f2; }
+    </style>
+</head>
+<body>
+<h2>Faculty Management</h2>
+
+<div>
+    <input type="text" id="name" placeholder="Enter Name">
+    <input type="text" id="phnNo" placeholder="Enter Phone Number">
+    <input type="text" id="dept" placeholder="Enter Department">
+    <input type="number" id="age" placeholder="Enter Age">
+    <button onclick="addFaculty()">Add Faculty</button>
+</div>
+
+<h3>All Faculty</h3>
+<button onclick="getFaculty()">Load Faculty</button>
+<table id="facultyTable">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Department</th>
+        <th>Age</th>
+    </tr>
+</table>
+
+<script>
+    async function addFaculty() {
+      const name = document.getElementById("name").value;
+      const phnNo = document.getElementById("phnNo").value;
+      const dept = document.getElementById("dept").value;
+      const age = document.getElementById("age").value;
+
+      if (!name || !phnNo || !dept || !age) {
+        alert("Please enter all fields.");
+        return;
+      }
+
+      const response = await fetch("/faculty/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phnNo, dept, age: parseInt(age) })
+      });
+
+      if (response.ok) {
+        alert("Faculty added successfully!");
+        getFaculty(); // refresh list
+      } else {
+        alert("Error adding faculty");
+      }
+    }
+
+    async function getFaculty() {
+      const response = await fetch("/faculty/show");
+      const data = await response.json();
+
+      const table = document.getElementById("facultyTable");
+      table.innerHTML = `
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Department</th>
+          <th>Age</th>
+        </tr>
+      `;
+
+      data.forEach(faculty => {
+        const row = `<tr>
+            <td>${faculty.id}</td>
+            <td>${faculty.name}</td>
+            <td>${faculty.phnNo}</td>
+            <td>${faculty.dept}</td>
+            <td>${faculty.age}</td>
+          </tr>`;
+        table.innerHTML += row;
+      });
+    }
+</script>
+</body>
+</html>
